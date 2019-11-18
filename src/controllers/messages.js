@@ -6,6 +6,9 @@ messagesRouter.get('/', async (req, res) => {
 })
 
 messagesRouter.post('/', async (req, res) => {
+  if (req.body.name === undefined || req.body.message === undefined) {
+    res.sendStatus(400)
+  }
   try {
     const message = {
       time: Date.now(),
