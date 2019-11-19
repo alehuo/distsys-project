@@ -10,5 +10,5 @@ app.use(cors())
 const messagesRouter = require('./controllers/messages')
 app.use('/messages', messagesRouter)
 
-const PORT = 3000
+const PORT = 5000
 http.createServer(app).listen(PORT)
