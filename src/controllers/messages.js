@@ -42,7 +42,7 @@ messagesRouter.post('/', async (req, res) => {
       message: req.body.message
     }
     messages.push(message)
-    const nodeUrls = 'http://localhost:5002;http://localhost:5004'.split(';').map(addr => addr.trim() + '/messages/receive')
+    const nodeUrls = String(process.env.NODE_URLS).split(';').split(';').map(addr => addr.trim() + '/messages/receive')
     const requests = []
     nodeUrls.forEach(url => {
       console.log(url)
