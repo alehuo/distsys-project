@@ -1,6 +1,6 @@
 const messagesRouter = require('express').Router()
 const fetch = require('node-fetch')
-const messages = []
+let messages = []
 
 messagesRouter.get('/', async (req, res) => {
   try {
@@ -25,6 +25,12 @@ messagesRouter.get('/state', (req, res) => {
   res.status(200).json(messages)
 })
 
+messagesRouter.post('/receive', (req, res) => {
+  const newMessages = req.body
+  messages = newMessages
+  res.sendStatus(200)
+})
+
 messagesRouter.post('/', async (req, res) => {
   if (req.body.name === undefined || req.body.message === undefined) {
     res.sendStatus(400)
@@ -36,6 +42,17 @@ messagesRouter.post('/', async (req, res) => {
       message: req.body.message
     }
     messages.push(message)
+    const nodeUrls = String(process.env.NODE_URLS).split(';').map(addr => addr.trim() + '/messages/receive')
+    const requests = []
+    nodeUrls.forEach(url => {
+      console.log(url)
+      requests.push(fetch(url, {
+        method: 'post',
+        body: JSON.stringify(messages),
+        headers: { 'Content-Type': 'application/json' }
+      }))
+    })
+    await Promise.all(requests)
     res.sendStatus(201)
   } catch (error) {
     res.sendStatus(500)
