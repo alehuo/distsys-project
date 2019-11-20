@@ -1,6 +1,6 @@
 const messagesRouter = require('express').Router()
 const fetch = require('node-fetch')
-let messages = []
+const messages = []
 
 messagesRouter.get('/', async (req, res) => {
   try {
@@ -26,8 +26,8 @@ messagesRouter.get('/state', (req, res) => {
 })
 
 messagesRouter.post('/receive', (req, res) => {
-  const newMessages = req.body
-  messages = newMessages
+  const newMessage = req.body
+  messages.push(newMessage)
   res.sendStatus(200)
 })
 
@@ -42,13 +42,13 @@ messagesRouter.post('/', async (req, res) => {
       message: req.body.message
     }
     messages.push(message)
-    const nodeUrls = String(process.env.NODE_URLS).split(';').map(addr => addr.trim() + '/messages/receive')
+    const nodeUrls = 'http://localhost:5002;http://localhost:5004'.split(';').map(addr => addr.trim() + '/messages/receive')
     const requests = []
     nodeUrls.forEach(url => {
       console.log(url)
       requests.push(fetch(url, {
         method: 'post',
-        body: JSON.stringify(messages),
+        body: JSON.stringify(message),
         headers: { 'Content-Type': 'application/json' }
       }))
     })
