@@ -2,16 +2,19 @@ const messagesRouter = require('express').Router()
 const fetch = require('node-fetch')
 const messages = []
 const nodeList = String(process.env.NODE_URLS).split(';')
+const nodeName = String(process.env.NODE_NAME)
 
 messagesRouter.get('/', async (req, res) => {
   try {
-    const nodeUrls = nodeList.map(addr => addr.trim() + '/messages/state')
+    const nodeUrls = nodeList.map(
+      addr => 'http://' + addr.trim() + ':5000/messages/state'
+    )
     const requests = []
     nodeUrls.forEach(url => {
       requests.push(fetch(url).then(res => res.json()))
     })
     const results = await Promise.all(requests)
-    let msgs = [...messages]
+    let msgs = []
     results.forEach(result => {
       msgs = [...msgs, ...result]
     })
@@ -27,7 +30,12 @@ messagesRouter.get('/state', (req, res) => {
 })
 
 messagesRouter.post('/receive', (req, res) => {
-  const newMessage = req.body
+  const newMessage = {
+    time: Date.now(),
+    name: req.body.name,
+    message: req.body.message,
+    nodeName
+  }
   messages.push(newMessage)
   res.sendStatus(200)
 })
@@ -40,10 +48,16 @@ messagesRouter.post('/', async (req, res) => {
     const message = {
       time: Date.now(),
       name: req.body.name,
-      message: req.body.message
+      message: req.body.message,
+      nodeName
     }
-    if (req.query && req.query.to) {
-      const address = nodeList[Number(req.query.to)].trim() + '/messages/receive'
+    if (req.query && req.query.to !== undefined) {
+      const to = String(req.query.to).trim()
+      const address =
+        nodeList.indexOf(to) > -1 ? 'http://' + to + ':5000/messages/receive' : undefined
+      if (address === undefined) {
+        res.sendStatus(500)
+      }
       await fetch(address, {
         method: 'post',
         body: JSON.stringify(message),

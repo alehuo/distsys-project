@@ -4,14 +4,17 @@ services:
     build: .
     ports: ["5001:5000"]
     environment:
-      - NODE_URLS=http://two:5000;http://three:5000
+      - NODE_NAME=one
+      - NODE_URLS=one;two;three
   two:
     build: .
     ports: ["5002:5000"]
     environment:
-      - NODE_URLS=http://one:5000;http://three:5000
+      - NODE_NAME=two
+      - NODE_URLS=one;two;three
   three:
     build: .
     ports: ["5003:5000"]
     environment:
-      - NODE_URLS=http://one:5000;http://two:5000
+      - NODE_NAME=three
+      - NODE_URLS=one;two;three

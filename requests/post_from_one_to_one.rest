@@ -1,0 +1,7 @@
+POST http://localhost:5001/messages?to=one HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Test 2",
+    "message": "Hello World"
+}
