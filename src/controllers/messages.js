@@ -1,4 +1,5 @@
 const messagesRouter = require('express').Router()
+const { performance } = require('perf_hooks')
 const fetch = require('node-fetch')
 const messages = []
 const nodeList = String(process.env.NODE_URLS).split(';')
@@ -30,6 +31,7 @@ messagesRouter.get('/state', (req, res) => {
 })
 
 messagesRouter.post('/receive', (req, res) => {
+  console.log('Message request received at: ' + performance.now())
   const newMessage = {
     time: Date.now(),
     name: req.body.name,
