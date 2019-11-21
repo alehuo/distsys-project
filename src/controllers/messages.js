@@ -43,12 +43,12 @@ messagesRouter.post('/', async (req, res) => {
       message: req.body.message
     }
     if (req.query && req.query.to) {
-      const address = nodeList[req.query.to].trim() + '/messages/receive'
-      await Promise.resolve(fetch(address, {
+      const address = nodeList[Number(req.query.to)].trim() + '/messages/receive'
+      await fetch(address, {
         method: 'post',
         body: JSON.stringify(message),
         headers: { 'Content-Type': 'application/json' }
-      }))
+      })
     } else {
       messages.push(message)
     }
